@@ -1,0 +1,16 @@
+{
+    "debug": false,
+    "monolog": {
+        "logfile": "/../logs/acp_nano.log",
+        "name": "ACP Nano"
+    },
+    "db.options": {
+        "driver": "pdo_mysql",
+        "host": "localhost",
+        "dbname": "nano",
+        "user": "nano",
+        "password": "",
+        "charset": "utf8"
+    },
+    "trustedProxies": []
+}

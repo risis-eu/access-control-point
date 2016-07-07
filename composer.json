@@ -1,0 +1,18 @@
+{
+    "name": "Nano ACP",
+    "description": "Nano datasets Access Control Point",
+    "keywords": ["RISIS", "datamining"],
+    "homepage": "http://risis.eu",
+    "authors": [
+        {
+            "name": "Guillaume Orsal",
+            "email": "guillaume@orsal.net",
+            "homepage": "https://www.orsal.fr"
+        }
+    ],
+    "require": {
+        "silex/silex": "~2.0",
+        "monolog/monolog": "^1.20",
+        "doctrine/dbal": "~2.2"
+    }
+}

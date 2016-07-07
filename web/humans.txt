@@ -1,0 +1,24 @@
+# humanstxt.org/
+# The humans responsible & technology colophon
+
+/* TEAM */
+
+    Web developer: Guillaume Orsal
+    Site: https://www.orsal.fr
+    Contact: contact[@]orsal.net, +33660314757
+    Twitter: @Gallyan
+    Google+ Profile: https://plus.google.com/+GuillaumeOrsal
+    From: Paris, France
+
+/* THANKS */
+
+    Humans.txt: http://humanstxt.org
+
+/* SITE */
+
+    Last update: 2016/07/06
+    Language: French
+    Standards: HTML5, CSS3
+    Doctype: HTML5
+    Software: Silex / Symfony
+    Technology: PHP
