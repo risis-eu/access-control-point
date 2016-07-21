@@ -12,5 +12,6 @@
         "password": "",
         "charset": "utf8"
     },
-    "trustedProxies": []
+    "trustedProxies": [],
+    "accessToken": ""
 }
