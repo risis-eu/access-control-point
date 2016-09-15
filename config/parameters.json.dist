@@ -1,5 +1,5 @@
 {
-    "debug": false,
+    "debug": true,
     "monolog": {
         "logfile": "/../logs/acp_nano.log",
         "name": "ACP Nano"
