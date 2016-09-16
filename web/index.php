@@ -114,24 +114,55 @@ $app->get('/v1.0/entities/{entityType}', function(Application $app, Request $req
     $app['monolog']->addInfo( "offset (".$offset.")" );
     $app['monolog']->addInfo( "limit (".$limit.")" );
     
-    if ( $entityType == "Patent" ) {
-        $sql = "SELECT * FROM cortext_a02_corpus_cortext LIMIT ".$offset.",".$limit;
-        //$res = $app['db']->fetchAll($sql, array( $offset, $limit ) );
-        $res = $app['db']->fetchAll( $sql );
-        foreach( $res as $properties ) {
-            $patent["entityID"] = (int)$properties["appln_id"];
-            $patent["properties"] = $properties;
-            $response[] = $patent;
+    $entity["dataset"] = "nano";
+    $entity["version"] = "version_2014_04";
+
+    if ( $entityType == "Document" ) {
+
+        $entity["entity_type"] = "Document";
+
+        $property_description["appln_id"] = "Applicant id";
+        $property_description["appln_auth"] = "Description of the field";
+        $property_description["appln_filing_year"] = "Description of the field";
+        $property_description["appln_first_priority_year"] = "Description of the field";
+        $property_description["artificial"] = "Description of the field";
+        $property_description["appln_nr"] = "Description of the field";
+        $property_description["appln_kind"] = "Description of the field";
+        $property_description["appln_title"] = "Description of the field";
+        $property_description["appln_abstract"] = "Description of the field";
+
+        foreach( $property_description as $name => $desc ) {
+            $property["name"] = $name;
+            $property["description"] = $desc;
+            $entity["property_description"][] = $property;
         }
-        return $app->json($response);
+
+        $sql = "SELECT a.appln_id as id, a.appln_id, a.appln_auth, a.appln_filing_year, a.appln_first_priority_year, a.artificial, a.appln_nr, a.appln_kind, b.appln_title, c.appln_abstract FROM tls201_appln_ifris AS a LEFT JOIN tls202_appln_title_ifris AS b ON a.appln_id = b.appln_id LEFT JOIN tls203_appln_abstr_ifris AS c ON a.appln_id = c.appln_id LIMIT ".$offset.",".$limit;
+        $results = $app['db']->fetchAll($sql);
+
+        foreach( $results as $res ) {
+            foreach( $res as $property => $value ) {
+                if ( $property === "id" ) {
+                    $instance["id"] = $value;
+                } else {
+                    $prop["property"] = $property;
+                    $prop["value"]    = $value;
+                    $instance["property_values"][] = $prop;
+                }
+            }
+            $entity["instances"][] = $instance;
+        }
+
+    } else {
+
+        // If entity type doesn't exists, return an error
+        $error["code"]=2;
+        $error["message"]="EntityType unavailable";
+        $error["fields"]=$entityType;
+        return $app->json( $error );
     }
 
-    // If entity type doesn't exists, return an error
-    $error["code"]=2;
-    $error["message"]="EntityType unavailable";
-    $error["fields"]=$entityType;
-    return $app->json( $error );
-
+    return $app->json($entity);
 });
 
 $app->get('/v1.0/entities/{entityType}/count', function(Application $app, Request $request, $entityType) {
