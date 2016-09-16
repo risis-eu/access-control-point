@@ -151,6 +151,7 @@ $app->get('/v1.0/entities/{entityType}', function(Application $app, Request $req
                 }
             }
             $entity["instances"][] = $instance;
+            unset( $instance );
         }
 
     } else {
