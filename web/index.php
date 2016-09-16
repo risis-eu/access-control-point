@@ -73,7 +73,7 @@ $app->get('/v1.0/entity/{entityType}/{id}', function(Application $app, Request $
             $entity["property_description"][] = $property;
         }
 
-        $sql = "SELECT a.appln_id AS id, a.appln_id, a.appln_auth, a.appln_filing_year, a.appln_first_priority_year, a.artificial, a.appln_nr, a.appln_kind, b.appln_title, c.appln_abstract FROM tls201_appln_ifris AS a LEFT JOIN tls202_appln_title_ifris AS b ON a.appln_id = b.appln_id LEFT JOIN tls203_appln_abstr_ifris AS c ON a.appln_id = c.appln_id WHERE id=?";
+        $sql = "SELECT a.appln_id AS id, a.appln_id, a.appln_auth, a.appln_filing_year, a.appln_first_priority_year, a.artificial, a.appln_nr, a.appln_kind, b.appln_title, c.appln_abstract FROM tls201_appln_ifris AS a LEFT JOIN tls202_appln_title_ifris AS b ON a.appln_id = b.appln_id LEFT JOIN tls203_appln_abstr_ifris AS c ON a.appln_id = c.appln_id WHERE a.appln_id=?";
 
     } else if ( $entityType == "Organisation" ) {
 
@@ -89,7 +89,7 @@ $app->get('/v1.0/entity/{entityType}/{id}', function(Application $app, Request $
             $entity["property_description"][] = $property;
         }
 
-        $sql = "SELECT CONCAT( appln_id, '-', person_id) AS id, appln_id, person_id, org_name_std, org_type, ctry_harm FROM applt_addr_ifris AS a LEFT JOIN nomen_ctry_iso AS b ON a.ctry_final = b.ctry_final WHERE org_type <> 'indiv' AND id=?";
+        $sql = "SELECT CONCAT( appln_id, '-', person_id) AS id, appln_id, person_id, org_name_std, org_type, ctry_harm FROM applt_addr_ifris AS a LEFT JOIN nomen_ctry_iso AS b ON a.ctry_final = b.ctry_final WHERE org_type <> 'indiv' AND CONCAT( appln_id, '-', person_id)=?";
 
     } else if ( $entityType == "Country" ) {
 
@@ -104,7 +104,7 @@ $app->get('/v1.0/entity/{entityType}/{id}', function(Application $app, Request $
             $entity["property_description"][] = $property;
         }
 
-        $sql = "SELECT ctry_harm AS id, ctry_harm, lib_ctry_harm, continent, region FROM nomen_ctry_continent WHERE id=?";
+        $sql = "SELECT ctry_harm AS id, ctry_harm, lib_ctry_harm, continent, region FROM nomen_ctry_continent WHERE ctry_harm=?";
 
     } else {
 
