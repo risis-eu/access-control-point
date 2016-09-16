@@ -51,15 +51,14 @@ $app->get('/v1.0/entity/{entityType}/{id}', function(Application $app, Request $
     // Log of the path access
     $app['monolog']->addInfo( "Entity (".$entityType."/".$id.")" );
 
-    if ( $entityType == "Patent" ) {
-        $sql = "SELECT * FROM cortext_a02_corpus_cortext WHERE appln_id=?";
+    if ( $entityType == "Document" ) {
+        $sql = "SELECT a.appln_id as id, a.appln_id, a.appln_auth, a.appln_filing_year, a.appln_first_priority_year, a.artificial, a.appln_nr, a.appln_kind, b.appln_title, c.appln_abstract FROM tls201_appln_ifris AS a LEFT JOIN tls202_appln_title_ifris AS b ON a.appln_id = b.appln_id LEFT JOIN tls203_appln_abstr_ifris AS c ON a.appln_id = c.appln_id WHERE a.appln_id=?";
         $res = $app['db']->fetchAll($sql, array( $id ) );
-        //$res = $app['db']->fetchAll( $sql );
         foreach( $res as $properties ) {
-            $patent["entityID"] = (int)$properties["appln_id"];
-            $patent["properties"] = $properties;
+            $instance["id"] = $properties["id"];
+            $instance["properties"] = $properties;
         }
-        return $app->json($patent);
+        return $app->json($instance);
     }
 
     // If entity type doesn't exists, return an error
@@ -139,7 +138,7 @@ $app->get('/v1.0/metadata', function(Application $app, Request $request) {
     $app['monolog']->addInfo( "Metadata" );
     $meta["title"]="Nano";
     $meta["description"]="Patents on nanotechnologies";
-    $meta["creationDate"]="1970-01-01 00:00:00";
+    $meta["creationDate"]="2014-04-01 00:00:00";
     $meta["owner"]="Lionel Villard - ESIEE";
     $meta["contact"]="lionel.villard@esiee.fr";
     return $app->json( $meta );
