@@ -238,15 +238,25 @@ $app->get('/v1.0/entities/{entityType}/count', function(Application $app, Reques
 
         $sql = "SELECT COUNT(*) AS nb FROM tls201_appln_ifris";
 
-        $res = $app['db']->fetchAll( $sql );
-        return $app->json( (int)$res[0]["nb"] );
+    } else if ( $entityType == "Organisation" ) {
+
+        $sql = "SELECT COUNT(*) AS nb FROM applt_addr_ifris";
+
+    } else if ( $entityType == "Country" ) {
+
+        $sql = "SELECT COUNT(*) AS nb FROM nomen_ctry_continent";
+
+    } else {
+
+        // If entity type doesn't exists, return an error
+        $error["code"]=2;
+        $error["message"]="EntityType unavailable";
+        $error["fields"]=$entityType;
+        return $app->json( $error );
     }
 
-    // If entity type doesn't exists, return an error
-    $error["code"]=2;
-    $error["message"]="EntityType unavailable";
-    $error["fields"]=$entityType;
-    return $app->json( $error );
+    $res = $app['db']->fetchAll( $sql );
+    return $app->json( (int)$res[0]["nb"] );
 });
 
 $app->get('/v1.0/entityTypes', function(Application $app, Request $request) {
