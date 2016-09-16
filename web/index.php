@@ -227,8 +227,6 @@ $app->get('/v1.0/entities/{entityType}', function(Application $app, Request $req
         unset( $instance );
     }
 
-    $entity["instance"] = $instance;
-
     return $app->json($entity);
 });
 
