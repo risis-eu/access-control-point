@@ -119,12 +119,17 @@ $app->get('/v1.0/entities/{entityType}/count', function(Application $app, Reques
 
 $app->get('/v1.0/entityTypes', function(Application $app, Request $request) {
     $app['monolog']->addInfo( "EntityTypes" );
-    // Creation of one entity type
-    $entity['name']="Patent";
-    $entity['path']="http://".$_SERVER['HTTP_HOST']."/v1.0/entities/Patent";
-    // Addition of the entity type to the response
-    $response[]=$entity;
-    // Previous operation could be repeated to add more entityTypes
+
+    $entitiesList = array( "Document", "Organisation", "Country" );
+
+    foreach( $entitiesList as $oneEntity ) {
+        // Creation of one entity type
+        $entity['name']=$oneEntity;
+        $entity['path']="http://".$_SERVER['HTTP_HOST']."/v1.0/entities/".$oneEntity;
+        $entity['description']="One description of the entity";
+        // Addition of the entity type to the response
+        $response[]=$entity;
+    }
 
     // Return of entity types list in json format
     return $app->json( $response );
