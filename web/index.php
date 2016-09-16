@@ -75,11 +75,18 @@ $app->get('/v1.0/entity/{entityType}/{id}', function(Application $app, Request $
         }
 
         $sql = "SELECT a.appln_id as id, a.appln_id, a.appln_auth, a.appln_filing_year, a.appln_first_priority_year, a.artificial, a.appln_nr, a.appln_kind, b.appln_title, c.appln_abstract FROM tls201_appln_ifris AS a LEFT JOIN tls202_appln_title_ifris AS b ON a.appln_id = b.appln_id LEFT JOIN tls203_appln_abstr_ifris AS c ON a.appln_id = c.appln_id WHERE a.appln_id=?";
-        $res = $app['db']->fetchAll($sql, array( $id ) );
+        $results = $app['db']->fetchAll($sql, array( $id ) );
 
-        foreach( $res as $properties ) {
-            $instance["id"] = $properties["id"];
-            $instance["properties"] = $properties;
+        foreach( $results as $res ) {
+            foreach( $res as $property => $value ) {
+                if ( $property === "id" ) {
+                    $instance["id"] = $value;
+                } else {
+                    $prop["property"] = $property;
+                    $prop["value"]    = $value;
+                    $instance["property_values"][] = $prop;
+                }
+            }
         }
 
         $entity["instance"] = $instance;
