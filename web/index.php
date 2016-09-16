@@ -170,8 +170,10 @@ $app->get('/v1.0/entities/{entityType}/count', function(Application $app, Reques
     // Log of the path access
     $app['monolog']->addInfo( "Entities count (".$entityType.")" );
 
-    if ( $entityType == "Patent" ) {
-        $sql = "SELECT COUNT(*) AS nb FROM cortext_a02_corpus_cortext";
+    if ( $entityType == "Document" ) {
+
+        $sql = "SELECT COUNT(*) AS nb FROM tls201_appln_ifris";
+
         $res = $app['db']->fetchAll( $sql );
         return $app->json( (int)$res[0]["nb"] );
     }
