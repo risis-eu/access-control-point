@@ -89,7 +89,7 @@ $app->get('/v1.0/entity/{entityType}/{id}', function(Application $app, Request $
             $entity["property_description"][] = $property;
         }
 
-        $sql = "SELECT CONCAT( appln_id, person_id) AS id, appln_id, person_id, org_name_std, org_type, ctry_harm FROM applt_addr_ifris AS a LEFT JOIN nomen_ctry_iso AS b ON a.ctry_final = b.ctry_final WHERE org_type <> 'indiv' AND id=?";
+        $sql = "SELECT CONCAT( appln_id, '-', person_id) AS id, appln_id, person_id, org_name_std, org_type, ctry_harm FROM applt_addr_ifris AS a LEFT JOIN nomen_ctry_iso AS b ON a.ctry_final = b.ctry_final WHERE org_type <> 'indiv' AND id=?";
 
     } else if ( $entityType == "Country" ) {
 
