@@ -127,9 +127,9 @@ $app->get('/v1.0/entity/{entityType}/{id}', function(Application $app, Request $
                 $instance["property_values"][] = $prop;
             }
         }
+        $entity["instances"][] = $instance;
+        unset( $instance );
     }
-
-    $entity["instance"] = $instance;
 
     return $app->json($entity);
 
