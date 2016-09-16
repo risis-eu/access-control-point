@@ -53,10 +53,9 @@ $app->get('/v1.0/entity/{entityType}/{id}', function(Application $app, Request $
 
     $entity["dataset"] = "nano";
     $entity["version"] = "version_2014_04";
+    $entity["entity_type"] = $entityType;
 
     if ( $entityType == "Document" ) {
-
-        $entity["entity_type"] = "Document";
 
         $property_description["appln_id"] = "Applicant id";
         $property_description["appln_auth"] = "Description of the field";
@@ -74,22 +73,38 @@ $app->get('/v1.0/entity/{entityType}/{id}', function(Application $app, Request $
             $entity["property_description"][] = $property;
         }
 
-        $sql = "SELECT a.appln_id as id, a.appln_id, a.appln_auth, a.appln_filing_year, a.appln_first_priority_year, a.artificial, a.appln_nr, a.appln_kind, b.appln_title, c.appln_abstract FROM tls201_appln_ifris AS a LEFT JOIN tls202_appln_title_ifris AS b ON a.appln_id = b.appln_id LEFT JOIN tls203_appln_abstr_ifris AS c ON a.appln_id = c.appln_id WHERE a.appln_id=?";
-        $results = $app['db']->fetchAll($sql, array( $id ) );
+        $sql = "SELECT a.appln_id AS id, a.appln_id, a.appln_auth, a.appln_filing_year, a.appln_first_priority_year, a.artificial, a.appln_nr, a.appln_kind, b.appln_title, c.appln_abstract FROM tls201_appln_ifris AS a LEFT JOIN tls202_appln_title_ifris AS b ON a.appln_id = b.appln_id LEFT JOIN tls203_appln_abstr_ifris AS c ON a.appln_id = c.appln_id WHERE id=?";
 
-        foreach( $results as $res ) {
-            foreach( $res as $property => $value ) {
-                if ( $property === "id" ) {
-                    $instance["id"] = $value;
-                } else {
-                    $prop["property"] = $property;
-                    $prop["value"]    = $value;
-                    $instance["property_values"][] = $prop;
-                }
-            }
+    } else if ( $entityType == "Organisation" ) {
+
+        $property_description["appln_id"] = "Applicant id";
+        $property_description["person_id"] = "Description of the field";
+        $property_description["org_name_std"] = "Description of the field";
+        $property_description["org_type"] = "Description of the field";
+        $property_description["ctry_harm"] = "Description of the field";
+
+        foreach( $property_description as $name => $desc ) {
+            $property["name"] = $name;
+            $property["description"] = $desc;
+            $entity["property_description"][] = $property;
         }
 
-        $entity["instance"] = $instance;
+        $sql = "SELECT CONCAT( appln_id, person_id) AS id, appln_id, person_id, org_name_std, org_type, ctry_harm FROM applt_addr_ifris AS a LEFT JOIN nomen_ctry_iso AS b ON a.ctry_final = b.ctry_final WHERE org_type <> 'indiv' WHERE id=?";
+
+    } else if ( $entityType == "Country" ) {
+
+        $property_description["ctry_harm"] = "Country";
+        $property_description["lib_ctry_harm"] = "Description of the field";
+        $property_description["continent"] = "Description of the field";
+        $property_description["region"] = "Description of the field";
+
+        foreach( $property_description as $name => $desc ) {
+            $property["name"] = $name;
+            $property["description"] = $desc;
+            $entity["property_description"][] = $property;
+        }
+
+        $sql = "SELECT ctry_harm AS id, ctry_harm, lib_ctry_harm, continent, region FROM nomen_ctry_continent WHERE id=?";
 
     } else {
 
@@ -99,6 +114,22 @@ $app->get('/v1.0/entity/{entityType}/{id}', function(Application $app, Request $
         $error["fields"]=$entityType;
         return $app->json( $error );
     }
+
+    $results = $app['db']->fetchAll($sql, array( $id ) );
+
+    foreach( $results as $res ) {
+        foreach( $res as $property => $value ) {
+            if ( $property === "id" ) {
+                $instance["id"] = $value;
+            } else {
+                $prop["property"] = $property;
+                $prop["value"]    = $value;
+                $instance["property_values"][] = $prop;
+            }
+        }
+    }
+
+    $entity["instance"] = $instance;
 
     return $app->json($entity);
 
@@ -137,7 +168,7 @@ $app->get('/v1.0/entities/{entityType}', function(Application $app, Request $req
             $entity["property_description"][] = $property;
         }
 
-        $sql = "SELECT a.appln_id as id, a.appln_id, a.appln_auth, a.appln_filing_year, a.appln_first_priority_year, a.artificial, a.appln_nr, a.appln_kind, b.appln_title, c.appln_abstract FROM tls201_appln_ifris AS a LEFT JOIN tls202_appln_title_ifris AS b ON a.appln_id = b.appln_id LEFT JOIN tls203_appln_abstr_ifris AS c ON a.appln_id = c.appln_id LIMIT ".$offset.",".$limit;
+        $sql = "SELECT a.appln_id AS id, a.appln_id, a.appln_auth, a.appln_filing_year, a.appln_first_priority_year, a.artificial, a.appln_nr, a.appln_kind, b.appln_title, c.appln_abstract FROM tls201_appln_ifris AS a LEFT JOIN tls202_appln_title_ifris AS b ON a.appln_id = b.appln_id LEFT JOIN tls203_appln_abstr_ifris AS c ON a.appln_id = c.appln_id LIMIT ".$offset.",".$limit;
         $results = $app['db']->fetchAll($sql);
 
         foreach( $results as $res ) {
@@ -194,7 +225,7 @@ $app->get('/v1.0/entityTypes', function(Application $app, Request $request) {
         // Creation of one entity type
         $entity['name']=$oneEntity;
         $entity['path']="http://".$_SERVER['HTTP_HOST']."/v1.0/entities/".$oneEntity;
-        $entity['description']="One description of the entity";
+        $entity['description']="One description of the entity type";
         // Addition of the entity type to the response
         $response[]=$entity;
     }
