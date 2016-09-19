@@ -91,22 +91,26 @@ function getPropertiesDescription( $entityType ) {
     return $result;
 }
 
-$app->get('/v1.0/entity/{entityType}/{id}', function(Application $app, Request $request, $entityType, $id ) {
-    // Log of the path access
-    $app['monolog']->addInfo( "Entity (".$entityType."/".$id.")" );
-
-    $entity["dataset"] = "nano";
-    $entity["version"] = "version_2014_04";
-    $entity["entity_type"] = $entityType;
-
+function validEntityType( $entityType ) {
     if ( ! in_array( $entityType, array( "Document", "Organisation", "Country" ) ) ) {
-
         // If entity type doesn't exists, return an error
         $error["code"]=2;
         $error["message"]="EntityType unavailable";
         $error["fields"]=$entityType;
-        return $app->json( $error );
+        return $error;
     }
+    return false;
+}
+
+$app->get('/v1.0/entity/{entityType}/{id}', function(Application $app, Request $request, $entityType, $id ) {
+    // Log of the path access
+    $app['monolog']->addInfo( "Entity (".$entityType."/".$id.")" );
+
+    if ( $error = validEntityType( $entityType ) ) { return $app->json( $error ); }
+
+    $entity["dataset"] = "nano";
+    $entity["version"] = "version_2014_04";
+    $entity["entity_type"] = $entityType;
 
     $entity["property_description"] = getPropertiesDescription( $entityType );
 
@@ -136,18 +140,11 @@ $app->get('/v1.0/entities/{entityType}', function(Application $app, Request $req
     // Log of the path access
     $app['monolog']->addInfo( "Entities (".$entityType.")" );
 
+    if ( $error = validEntityType( $entityType ) ) { return $app->json( $error ); }
+
     $entity["dataset"] = "nano";
     $entity["version"] = "version_2014_04";
     $entity["entity_type"] = $entityType;
-
-    if ( ! in_array( $entityType, array( "Document", "Organisation", "Country" ) ) ) {
-
-        // If entity type doesn't exists, return an error
-        $error["code"]=2;
-        $error["message"]="EntityType unavailable";
-        $error["fields"]=$entityType;
-        return $app->json( $error );
-    }
 
     $entity["property_description"] = getPropertiesDescription( $entityType );
 
@@ -184,14 +181,7 @@ $app->get('/v1.0/entities/{entityType}/count', function(Application $app, Reques
     // Log of the path access
     $app['monolog']->addInfo( "Entities count (".$entityType.")" );
 
-    if ( ! in_array( $entityType, array( "Document", "Organisation", "Country" ) ) ) {
-
-        // If entity type doesn't exists, return an error
-        $error["code"]=2;
-        $error["message"]="EntityType unavailable";
-        $error["fields"]=$entityType;
-        return $app->json( $error );
-    }
+    if ( $error = validEntityType( $entityType ) ) { return $app->json( $error ); }
 
     $sql = "SELECT COUNT(*) AS nb FROM " . $entityType ;
 
@@ -228,23 +218,16 @@ $app->get('/v1.0/metadata', function(Application $app, Request $request) {
 });
 
 $app->get('/v1.0/relations', function(Application $app, Request $request) {
-            
-            
-            return new Response('How about implementing relationsGet as a GET method ?');
-            });
-            
+    return new Response('How about implementing relationsGet as a GET method ?');
+});
 
 $app->get('/v1.0/relations/{relationName}', function(Application $app, Request $request, $relationName) {
-            $offset = $request->get('offset');    $limit = $request->get('limit');    
-            
-            return new Response('How about implementing relationsRelationNameGet as a GET method ?');
-            });
-            
+    $offset = $request->get('offset');    $limit = $request->get('limit');
+    return new Response('How about implementing relationsRelationNameGet as a GET method ?');
+});
 
 $app->get('/v1.0/relations/{relationName}/count', function(Application $app, Request $request, $relationName) {
-            
-            
-            return new Response('How about implementing relationsRelationNameCountGet as a GET method ?');
-            });
+    return new Response('How about implementing relationsRelationNameCountGet as a GET method ?');
+});
 
 $app->run();
