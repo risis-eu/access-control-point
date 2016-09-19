@@ -47,13 +47,7 @@ $app->before(function ($request) use ($app) {
 
 }, Application::EARLY_EVENT);
 
-$app->get('/v1.0/entity/{entityType}/{id}', function(Application $app, Request $request, $entityType, $id ) {
-    // Log of the path access
-    $app['monolog']->addInfo( "Entity (".$entityType."/".$id.")" );
-
-    $entity["dataset"] = "nano";
-    $entity["version"] = "version_2014_04";
-    $entity["entity_type"] = $entityType;
+function getPropertiesDescription( $entityType ) {
 
     if ( $entityType == "Document" ) {
 
@@ -67,14 +61,6 @@ $app->get('/v1.0/entity/{entityType}/{id}', function(Application $app, Request $
         $property_description["appln_title"] = "Description of the field";
         $property_description["appln_abstract"] = "Description of the field";
 
-        foreach( $property_description as $name => $desc ) {
-            $property["name"] = $name;
-            $property["description"] = $desc;
-            $entity["property_description"][] = $property;
-        }
-
-        $sql = "SELECT a.appln_id AS id, a.appln_id, a.appln_auth, a.appln_filing_year, a.appln_first_priority_year, a.artificial, a.appln_nr, a.appln_kind, b.appln_title, c.appln_abstract FROM tls201_appln_ifris AS a LEFT JOIN tls202_appln_title_ifris AS b ON a.appln_id = b.appln_id LEFT JOIN tls203_appln_abstr_ifris AS c ON a.appln_id = c.appln_id WHERE a.appln_id=?";
-
     } else if ( $entityType == "Organisation" ) {
 
         $property_description["appln_id"] = "Applicant id";
@@ -83,14 +69,6 @@ $app->get('/v1.0/entity/{entityType}/{id}', function(Application $app, Request $
         $property_description["org_type"] = "Description of the field";
         $property_description["ctry_harm"] = "Description of the field";
 
-        foreach( $property_description as $name => $desc ) {
-            $property["name"] = $name;
-            $property["description"] = $desc;
-            $entity["property_description"][] = $property;
-        }
-
-        $sql = "SELECT CONCAT( appln_id, '-', person_id) AS id, appln_id, person_id, org_name_std, org_type, ctry_harm FROM applt_addr_ifris AS a LEFT JOIN nomen_ctry_iso AS b ON a.ctry_final = b.ctry_final WHERE org_type <> 'indiv' AND CONCAT( appln_id, '-', person_id)=?";
-
     } else if ( $entityType == "Country" ) {
 
         $property_description["ctry_harm"] = "Country";
@@ -98,11 +76,39 @@ $app->get('/v1.0/entity/{entityType}/{id}', function(Application $app, Request $
         $property_description["continent"] = "Description of the field";
         $property_description["region"] = "Description of the field";
 
-        foreach( $property_description as $name => $desc ) {
-            $property["name"] = $name;
-            $property["description"] = $desc;
-            $entity["property_description"][] = $property;
-        }
+    } else {
+
+        return false;
+
+    }
+
+    foreach( $property_description as $name => $desc ) {
+        $property["name"] = $name;
+        $property["description"] = $desc;
+        $result[] = $property;
+    }
+
+    return $result;
+}
+
+$app->get('/v1.0/entity/{entityType}/{id}', function(Application $app, Request $request, $entityType, $id ) {
+    // Log of the path access
+    $app['monolog']->addInfo( "Entity (".$entityType."/".$id.")" );
+
+    $entity["dataset"] = "nano";
+    $entity["version"] = "version_2014_04";
+    $entity["entity_type"] = $entityType;
+    $entity["property_description"] = getPropertiesDescription( $entityType );
+
+    if ( $entityType == "Document" ) {
+
+        $sql = "SELECT a.appln_id AS id, a.appln_id, a.appln_auth, a.appln_filing_year, a.appln_first_priority_year, a.artificial, a.appln_nr, a.appln_kind, b.appln_title, c.appln_abstract FROM tls201_appln_ifris AS a LEFT JOIN tls202_appln_title_ifris AS b ON a.appln_id = b.appln_id LEFT JOIN tls203_appln_abstr_ifris AS c ON a.appln_id = c.appln_id WHERE a.appln_id=?";
+
+    } else if ( $entityType == "Organisation" ) {
+
+        $sql = "SELECT CONCAT( appln_id, '-', person_id) AS id, appln_id, person_id, org_name_std, org_type, ctry_harm FROM applt_addr_ifris AS a LEFT JOIN nomen_ctry_iso AS b ON a.ctry_final = b.ctry_final WHERE org_type <> 'indiv' AND CONCAT( appln_id, '-', person_id)=?";
+
+    } else if ( $entityType == "Country" ) {
 
         $sql = "SELECT ctry_harm AS id, ctry_harm, lib_ctry_harm, continent, region FROM nomen_ctry_continent WHERE ctry_harm=?";
 
@@ -142,55 +148,17 @@ $app->get('/v1.0/entities/{entityType}', function(Application $app, Request $req
     $entity["dataset"] = "nano";
     $entity["version"] = "version_2014_04";
     $entity["entity_type"] = $entityType;
+    $entity["property_description"] = getPropertiesDescription( $entityType );
 
     if ( $entityType == "Document" ) {
-
-        $property_description["appln_id"] = "Applicant id";
-        $property_description["appln_auth"] = "Description of the field";
-        $property_description["appln_filing_year"] = "Description of the field";
-        $property_description["appln_first_priority_year"] = "Description of the field";
-        $property_description["artificial"] = "Description of the field";
-        $property_description["appln_nr"] = "Description of the field";
-        $property_description["appln_kind"] = "Description of the field";
-        $property_description["appln_title"] = "Description of the field";
-        $property_description["appln_abstract"] = "Description of the field";
-
-        foreach( $property_description as $name => $desc ) {
-            $property["name"] = $name;
-            $property["description"] = $desc;
-            $entity["property_description"][] = $property;
-        }
 
         $sql = "SELECT a.appln_id AS id, a.appln_id, a.appln_auth, a.appln_filing_year, a.appln_first_priority_year, a.artificial, a.appln_nr, a.appln_kind, b.appln_title, c.appln_abstract FROM tls201_appln_ifris AS a LEFT JOIN tls202_appln_title_ifris AS b ON a.appln_id = b.appln_id LEFT JOIN tls203_appln_abstr_ifris AS c ON a.appln_id = c.appln_id";
 
     } else if ( $entityType == "Organisation" ) {
 
-        $property_description["appln_id"] = "Applicant id";
-        $property_description["person_id"] = "Description of the field";
-        $property_description["org_name_std"] = "Description of the field";
-        $property_description["org_type"] = "Description of the field";
-        $property_description["ctry_harm"] = "Description of the field";
-
-        foreach( $property_description as $name => $desc ) {
-            $property["name"] = $name;
-            $property["description"] = $desc;
-            $entity["property_description"][] = $property;
-        }
-
         $sql = "SELECT CONCAT( appln_id, '-', person_id) AS id, appln_id, person_id, org_name_std, org_type, ctry_harm FROM applt_addr_ifris AS a LEFT JOIN nomen_ctry_iso AS b ON a.ctry_final = b.ctry_final WHERE org_type <> 'indiv'";
 
     } else if ( $entityType == "Country" ) {
-
-        $property_description["ctry_harm"] = "Country";
-        $property_description["lib_ctry_harm"] = "Description of the field";
-        $property_description["continent"] = "Description of the field";
-        $property_description["region"] = "Description of the field";
-
-        foreach( $property_description as $name => $desc ) {
-            $property["name"] = $name;
-            $property["description"] = $desc;
-            $entity["property_description"][] = $property;
-        }
 
         $sql = "SELECT ctry_harm AS id, ctry_harm, lib_ctry_harm, continent, region FROM nomen_ctry_continent";
 
