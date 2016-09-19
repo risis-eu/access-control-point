@@ -1,15 +1,15 @@
 {
     "debug": true,
     "monolog": {
-        "logfile": "/../logs/acp_nano.log",
-        "name": "ACP Nano"
+        "logfile": "/../logs/acp.log",
+        "name": "ACP"
     },
     "db.options": {
         "driver": "pdo_mysql",
         "host": "localhost",
         "port": 3306,
-        "dbname": "nano",
-        "user": "nano",
+        "dbname": "acp",
+        "user": "acp",
         "password": "",
         "charset": "utf8"
     },
