@@ -99,7 +99,7 @@ $app->get('/v1.0/entity/{entityType}/{id}', function(Application $app, Request $
     $entity["version"] = "version_2014_04";
     $entity["entity_type"] = $entityType;
 
-    if ( ! in_array( $entityType, array( "Document", "Organisation", "Country" ) ) { 
+    if ( ! in_array( $entityType, array( "Document", "Organisation", "Country" ) ) ) {
 
         // If entity type doesn't exists, return an error
         $error["code"]=2;
@@ -110,9 +110,9 @@ $app->get('/v1.0/entity/{entityType}/{id}', function(Application $app, Request $
 
     $entity["property_description"] = getPropertiesDescription( $entityType );
 
-    $sql = "SELECT * FROM ? WHERE id=?";
+    $sql = "SELECT * FROM " . $entityType . " WHERE id=?";
 
-    $results = $app['db']->fetchAll($sql, array( $entityType, $id ) );
+    $results = $app['db']->fetchAll($sql, array( $id ) );
 
     foreach( $results as $res ) {
         foreach( $res as $property => $value ) {
@@ -140,7 +140,7 @@ $app->get('/v1.0/entities/{entityType}', function(Application $app, Request $req
     $entity["version"] = "version_2014_04";
     $entity["entity_type"] = $entityType;
 
-    if ( ! in_array( $entityType, array( "Document", "Organisation", "Country" ) ) { 
+    if ( ! in_array( $entityType, array( "Document", "Organisation", "Country" ) ) ) {
 
         // If entity type doesn't exists, return an error
         $error["code"]=2;
@@ -151,7 +151,7 @@ $app->get('/v1.0/entities/{entityType}', function(Application $app, Request $req
 
     $entity["property_description"] = getPropertiesDescription( $entityType );
 
-    $sql = "SELECT * FROM ?";
+    $sql = "SELECT * FROM " . $entityType ;
 
     $offset = (int)$request->get('offset');
     $limit = (int)$request->get('limit');
@@ -161,7 +161,7 @@ $app->get('/v1.0/entities/{entityType}', function(Application $app, Request $req
 
     $sql .= " LIMIT ".$offset.",".$limit;
 
-    $results = $app['db']->fetchAll($sql, array( $entityType ) );
+    $results = $app['db']->fetchAll( $sql );
 
     foreach( $results as $res ) {
         foreach( $res as $property => $value ) {
@@ -184,7 +184,7 @@ $app->get('/v1.0/entities/{entityType}/count', function(Application $app, Reques
     // Log of the path access
     $app['monolog']->addInfo( "Entities count (".$entityType.")" );
 
-    if ( ! in_array( $entityType, array( "Document", "Organisation", "Country" ) ) { 
+    if ( ! in_array( $entityType, array( "Document", "Organisation", "Country" ) ) ) {
 
         // If entity type doesn't exists, return an error
         $error["code"]=2;
@@ -193,9 +193,9 @@ $app->get('/v1.0/entities/{entityType}/count', function(Application $app, Reques
         return $app->json( $error );
     }
 
-    $sql = "SELECT COUNT(*) AS nb FROM ?";
+    $sql = "SELECT COUNT(*) AS nb FROM " . $entityType ;
 
-    $res = $app['db']->fetchAll( $sql, array( $entityType ) );
+    $res = $app['db']->fetchAll( $sql );
     return $app->json( (int)$res[0]["nb"] );
 });
 
