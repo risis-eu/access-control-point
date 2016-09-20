@@ -57,7 +57,8 @@ function getPropertiesDescription( Application $app, $entityType ) {
 
 
 function validEntityType( $entityType ) {
-    if ( ! in_array( $entityType, array( "Document", "Organisation", "Country" ) ) ) {
+    global $app;
+    if ( ! in_array( $entityType, $app['parameters']['metadata']['entityType'] ) ) {
         // If entity type doesn't exists, return an error
         $error["code"]=2;
         $error["message"]="EntityType unavailable";
@@ -74,8 +75,8 @@ $app->get('/v1.0/entity/{entityType}/{id}', function(Application $app, Request $
 
     if ( $error = validEntityType( $entityType ) ) { return $app->json( $error ); }
 
-    $entity["dataset"] = "nano";
-    $entity["version"] = "version_2014_04";
+    $entity["dataset"] = $app['parameters']['metadata']['dataset'];
+    $entity["version"] = $app['parameters']['metadata']['version'];
     $entity["entity_type"] = $entityType;
 
     $entity["property_description"] = getPropertiesDescription( $app, $entityType );
@@ -108,8 +109,8 @@ $app->get('/v1.0/entities/{entityType}', function(Application $app, Request $req
 
     if ( $error = validEntityType( $entityType ) ) { return $app->json( $error ); }
 
-    $entity["dataset"] = "nano";
-    $entity["version"] = "version_2014_04";
+    $entity["dataset"] = $app['parameters']['metadata']['dataset'];
+    $entity["version"] = $app['parameters']['metadata']['version'];
     $entity["entity_type"] = $entityType;
 
     $entity["property_description"] = getPropertiesDescription( $app, $entityType );
@@ -158,13 +159,13 @@ $app->get('/v1.0/entities/{entityType}/count', function(Application $app, Reques
 $app->get('/v1.0/entityTypes', function(Application $app, Request $request) {
     $app['monolog']->addInfo( "EntityTypes" );
 
-    $entitiesList = array( "Document", "Organisation", "Country" );
+    $entitiesList = $app['parameters']['metadata']['entityType'];
 
     foreach( $entitiesList as $oneEntity ) {
         // Creation of one entity type
-        $entity['name']=$oneEntity;
-        $entity['path']="http://".$_SERVER['HTTP_HOST']."/v1.0/entities/".$oneEntity;
-        $entity['description']="One description of the entity type";
+        $entity['name'] = $oneEntity;
+        $entity['path'] = "http://".$_SERVER['HTTP_HOST']."/v1.0/entities/".$oneEntity;
+        $entity['description'] = "One description of the entity type";
         // Addition of the entity type to the response
         $response[]=$entity;
     }
@@ -175,11 +176,13 @@ $app->get('/v1.0/entityTypes', function(Application $app, Request $request) {
 
 $app->get('/v1.0/metadata', function(Application $app, Request $request) {
     $app['monolog']->addInfo( "Metadata" );
-    $meta["title"]="Nano";
-    $meta["description"]="Patents on nanotechnologies";
-    $meta["creationDate"]="2014-04-01 00:00:00";
-    $meta["owner"]="Lionel Villard - ESIEE";
-    $meta["contact"]="lionel.villard@esiee.fr";
+
+    $meta["title"]        = $app['parameters']['metadata']['dataset'];
+    $meta["description"]  = $app['parameters']['metadata']['description'];
+    $meta["creationDate"] = $app['parameters']['metadata']['creationDate'];
+    $meta["owner"]        = $app['parameters']['metadata']['owner'];
+    $meta["contact"]      = $app['parameters']['metadata']['contact'];
+
     return $app->json( $meta );
 });
 

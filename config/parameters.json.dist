@@ -13,6 +13,15 @@
         "password": "",
         "charset": "utf8"
     },
+    "metadata": {
+        "dataset" : "acp",
+        "version" : "version_YYYY_MM",
+        "entityType" : [ "Entity1", "Entity2" ],
+        "description" : "Description of the dataset",
+        "creationDate" : "YYYY-MM-DD HH:MM:SS",
+        "owner" : "Name and institution of the owner",
+        "contact" : "email@example.org"
+    },
     "trustedProxies": [],
     "accessToken": ""
 }
