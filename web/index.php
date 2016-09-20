@@ -12,7 +12,7 @@ $app = new Silex\Application();
 // Chargement de la config dans parameters.json
 require_once __DIR__.'/../config/config.php';
 
-// Activation du debugging a desactiver en production
+// Activation du debugging en fonction du fichier de paramètre
 $app['debug'] = $app['parameters']['debug'];
 
 /*********************************************************************************************
@@ -22,18 +22,18 @@ $app['debug'] = $app['parameters']['debug'];
  ********************************************************************************************/
 $app['db.options'] = array(
     'driver'   => $app['parameters']['db.options']['driver'],
-    'host' => $app['parameters']['db.options']['host'],
-    'port' => $app['parameters']['db.options']['port'],
-    'dbname' => $app['parameters']['db.options']['dbname'],
-    'user' => $app['parameters']['db.options']['user'],
+    'host'     => $app['parameters']['db.options']['host'],
+    'port'     => $app['parameters']['db.options']['port'],
+    'dbname'   => $app['parameters']['db.options']['dbname'],
+    'user'     => $app['parameters']['db.options']['user'],
     'password' => $app['parameters']['db.options']['password'],
-    'charset' => $app['parameters']['db.options']['charset'],
+    'charset'  => $app['parameters']['db.options']['charset'],
 );
 
-// Register Monolog
+// Register Monolog to create log file
 $app->register(new Silex\Provider\MonologServiceProvider(), array(
     'monolog.logfile' => __DIR__.$app['parameters']['monolog']['logfile'],
-    'monolog.name' => $app['parameters']['monolog']['name']
+    'monolog.name'    => $app['parameters']['monolog']['name']
 ));
 
 $app->register(new Silex\Provider\DoctrineServiceProvider());
@@ -48,15 +48,21 @@ $app->before(function ($request) use ($app) {
 }, Application::EARLY_EVENT);
 
 
+/**
+ * Get dictionnary of properties of entities from DB
+ */
 function getPropertiesDescription( Application $app, $entityType ) {
 
     $sql = "SELECT name, description, hasEntityType FROM dictionnary WHERE entityType=?";
-
     return $app['db']->fetchAll($sql, array( $entityType ) );
 }
 
 
-function validEntityType( $entityType ) {
+/**
+ * Return false if entityType is defined in the parameters file
+ * Ohterwise it returns an array with an error message
+ */
+function invalidEntityType( $entityType ) {
     global $app;
     if ( ! in_array( $entityType, $app['parameters']['metadata']['entityType'] ) ) {
         // If entity type doesn't exists, return an error
@@ -73,10 +79,10 @@ $app->get('/v1.0/entity/{entityType}/{id}', function(Application $app, Request $
     // Log of the path access
     $app['monolog']->addInfo( "Entity (".$entityType."/".$id.")" );
 
-    if ( $error = validEntityType( $entityType ) ) { return $app->json( $error ); }
+    if ( $error = invalidEntityType( $entityType ) ) { return $app->json( $error ); }
 
-    $entity["dataset"] = $app['parameters']['metadata']['dataset'];
-    $entity["version"] = $app['parameters']['metadata']['version'];
+    $entity["dataset"]     = $app['parameters']['metadata']['dataset'];
+    $entity["version"]     = $app['parameters']['metadata']['version'];
     $entity["entity_type"] = $entityType;
 
     $entity["property_description"] = getPropertiesDescription( $app, $entityType );
@@ -107,23 +113,20 @@ $app->get('/v1.0/entities/{entityType}', function(Application $app, Request $req
     // Log of the path access
     $app['monolog']->addInfo( "Entities (".$entityType.")" );
 
-    if ( $error = validEntityType( $entityType ) ) { return $app->json( $error ); }
+    if ( $error = invalidEntityType( $entityType ) ) { return $app->json( $error ); }
 
-    $entity["dataset"] = $app['parameters']['metadata']['dataset'];
-    $entity["version"] = $app['parameters']['metadata']['version'];
+    $entity["dataset"]     = $app['parameters']['metadata']['dataset'];
+    $entity["version"]     = $app['parameters']['metadata']['version'];
     $entity["entity_type"] = $entityType;
 
     $entity["property_description"] = getPropertiesDescription( $app, $entityType );
 
-    $sql = "SELECT * FROM " . $entityType ;
-
     $offset = (int)$request->get('offset');
-    $limit = (int)$request->get('limit');
-    if ( $limit == 0 ) $limit = 10;
-    $app['monolog']->addInfo( "offset (".$offset.")" );
-    $app['monolog']->addInfo( "limit (".$limit.")" );
+    $limit  = (int)$request->get('limit');
+    if ( $limit == 0 ) $limit = $app['parameters']['db.options']['default_limit'];
+    $limit = min( $limit, $app['parameters']['db.options']['max_limit'] );
 
-    $sql .= " LIMIT ".$offset.",".$limit;
+    $sql = "SELECT * FROM " . $entityType . " LIMIT " . $offset . "," . $limit;
 
     $results = $app['db']->fetchAll( $sql );
 
@@ -148,7 +151,7 @@ $app->get('/v1.0/entities/{entityType}/count', function(Application $app, Reques
     // Log of the path access
     $app['monolog']->addInfo( "Entities count (".$entityType.")" );
 
-    if ( $error = validEntityType( $entityType ) ) { return $app->json( $error ); }
+    if ( $error = invalidEntityType( $entityType ) ) { return $app->json( $error ); }
 
     $sql = "SELECT COUNT(*) AS nb FROM " . $entityType ;
 
@@ -171,7 +174,7 @@ $app->get('/v1.0/entityTypes', function(Application $app, Request $request) {
 
         $entity['description'] = $result[0]['description'];
         // Addition of the entity type to the response
-        $response[]=$entity;
+        $response[] = $entity;
     }
 
     // Return of entity types list in json format

@@ -11,7 +11,9 @@
         "dbname": "acp",
         "user": "acp",
         "password": "",
-        "charset": "utf8"
+        "charset": "utf8",
+        "default_limit": 10,
+        "max_limit": 100
     },
     "metadata": {
         "dataset" : "acp",
