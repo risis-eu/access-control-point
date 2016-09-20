@@ -47,49 +47,14 @@ $app->before(function ($request) use ($app) {
 
 }, Application::EARLY_EVENT);
 
-function getPropertiesDescription( $entityType ) {
 
-    if ( $entityType == "Document" ) {
+function getPropertiesDescription( Application $app, $entityType ) {
 
-        $property_description["appln_id"] = "Applicant id";
-        $property_description["appln_auth"] = "Description of the field";
-        $property_description["appln_filing_year"] = "Description of the field";
-        $property_description["appln_first_priority_year"] = "Description of the field";
-        $property_description["artificial"] = "Description of the field";
-        $property_description["appln_nr"] = "Description of the field";
-        $property_description["appln_kind"] = "Description of the field";
-        $property_description["appln_title"] = "Description of the field";
-        $property_description["appln_abstract"] = "Description of the field";
+    $sql = "SELECT name, description, hasEntityType FROM dictionnary WHERE entityType=?";
 
-    } else if ( $entityType == "Organisation" ) {
-
-        $property_description["appln_id"] = "Applicant id";
-        $property_description["person_id"] = "Description of the field";
-        $property_description["org_name_std"] = "Description of the field";
-        $property_description["org_type"] = "Description of the field";
-        $property_description["ctry_harm"] = "Description of the field";
-
-    } else if ( $entityType == "Country" ) {
-
-        $property_description["ctry_harm"] = "Country";
-        $property_description["lib_ctry_harm"] = "Description of the field";
-        $property_description["continent"] = "Description of the field";
-        $property_description["region"] = "Description of the field";
-
-    } else {
-
-        return false;
-
-    }
-
-    foreach( $property_description as $name => $desc ) {
-        $property["name"] = $name;
-        $property["description"] = $desc;
-        $result[] = $property;
-    }
-
-    return $result;
+    return $app['db']->fetchAll($sql, array( $entityType ) );
 }
+
 
 function validEntityType( $entityType ) {
     if ( ! in_array( $entityType, array( "Document", "Organisation", "Country" ) ) ) {
@@ -102,6 +67,7 @@ function validEntityType( $entityType ) {
     return false;
 }
 
+
 $app->get('/v1.0/entity/{entityType}/{id}', function(Application $app, Request $request, $entityType, $id ) {
     // Log of the path access
     $app['monolog']->addInfo( "Entity (".$entityType."/".$id.")" );
@@ -112,7 +78,7 @@ $app->get('/v1.0/entity/{entityType}/{id}', function(Application $app, Request $
     $entity["version"] = "version_2014_04";
     $entity["entity_type"] = $entityType;
 
-    $entity["property_description"] = getPropertiesDescription( $entityType );
+    $entity["property_description"] = getPropertiesDescription( $app, $entityType );
 
     $sql = "SELECT * FROM " . $entityType . " WHERE id=?";
 
@@ -146,7 +112,7 @@ $app->get('/v1.0/entities/{entityType}', function(Application $app, Request $req
     $entity["version"] = "version_2014_04";
     $entity["entity_type"] = $entityType;
 
-    $entity["property_description"] = getPropertiesDescription( $entityType );
+    $entity["property_description"] = getPropertiesDescription( $app, $entityType );
 
     $sql = "SELECT * FROM " . $entityType ;
 
