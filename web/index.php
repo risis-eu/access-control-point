@@ -165,7 +165,11 @@ $app->get('/v1.0/entityTypes', function(Application $app, Request $request) {
         // Creation of one entity type
         $entity['name'] = $oneEntity;
         $entity['path'] = "http://".$_SERVER['HTTP_HOST']."/v1.0/entities/".$oneEntity;
-        $entity['description'] = "One description of the entity type";
+
+        $sql = "SELECT description FROM entities WHERE entity=?";
+        $result = $app['db']->fetchAll( $sql, array( $oneEntity ) );
+
+        $entity['description'] = $result[0]['description'];
         // Addition of the entity type to the response
         $response[]=$entity;
     }
