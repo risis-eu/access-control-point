@@ -118,6 +118,10 @@ $app->get('/v1.0/entities/{entityType}/{id}', function(Application $app, Request
         unset( $instance );
     }
 
+    if ( count($entity["instances"]) == 0 ) {
+        $app->abort(404, "No instance for $entityType " . (isset($id)?$id:"") );
+    }
+
     return $app->json($entity);
 
 });
@@ -158,7 +162,7 @@ $app->get('/v1.0/entities/{entityType}', function(Application $app, Request $req
     }
 
     if ( count($entity["instances"]) == 0 ) {
-        $app->abort(404, "$entityType $id does not exist.");
+        $app->abort(404, "No instance for $entityType " . (isset($id)?$id:"") );
     }
 
     return $app->json($entity);
