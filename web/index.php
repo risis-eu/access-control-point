@@ -184,11 +184,12 @@ $app->get('/v1.0/entityTypes', function(Application $app, Request $request) {
 $app->get('/v1.0/metadata', function(Application $app, Request $request) {
     $app['monolog']->addInfo( "Metadata" );
 
-    $meta["title"]        = $app['parameters']['metadata']['dataset'];
-    $meta["description"]  = $app['parameters']['metadata']['description'];
-    $meta["creationDate"] = $app['parameters']['metadata']['creationDate'];
-    $meta["owner"]        = $app['parameters']['metadata']['owner'];
-    $meta["contact"]      = $app['parameters']['metadata']['contact'];
+    $meta["title"]                = $app['parameters']['metadata']['dataset'];
+    $meta["description"]          = $app['parameters']['metadata']['description'];
+    $meta["creationDate"]         = $app['parameters']['metadata']['creationDate'];
+    $meta["contact_person"]       = $app['parameters']['metadata']['contact_person'];
+    $meta["contact_organisation"] = $app['parameters']['metadata']['contact_organisation'];
+    $meta["contact_email"]        = $app['parameters']['metadata']['contact_email'];
 
     return $app->json( $meta );
 });

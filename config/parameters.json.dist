@@ -21,8 +21,9 @@
         "entityType" : [ "Entity1", "Entity2" ],
         "description" : "Description of the dataset",
         "creationDate" : "YYYY-MM-DD HH:MM:SS",
-        "owner" : "Name and institution of the owner",
-        "contact" : "email@example.org"
+        "contact_person" : "Name of the owner",
+        "contact_organisation" : "Institution of the owner",
+        "contact_email" : "email@example.org"
     },
     "trustedProxies": [],
     "accessToken": ""
