@@ -26,5 +26,5 @@
         "contact_email" : "email@example.org"
     },
     "trustedProxies": [],
-    "accessToken": ""
+    "accessToken": { "esiee":"foo" , "u-pem":"bar", "no-token":"" }
 }

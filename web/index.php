@@ -42,7 +42,7 @@ $app->before(function ($request) use ($app) {
 
     // Check access
     $token = $request->get('accessToken');
-    if ( $token != $app['parameters']['accessToken'] )
+    if ( ! in_array( $token, $app['parameters']['accessToken'] ) )
         die( "You don't have access !" );
 
 }, Application::EARLY_EVENT);
