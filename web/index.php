@@ -157,6 +157,10 @@ $app->get('/v1.0/entities/{entityType}', function(Application $app, Request $req
         unset( $instance );
     }
 
+    if ( count($entity["instances"]) == 0 ) {
+        $app->abort(404, "$entityType $id does not exist.");
+    }
+
     return $app->json($entity);
 });
 
