@@ -75,7 +75,20 @@ function invalidEntityType( $entityType ) {
 }
 
 
-$app->get('/v1.0/entity/{entityType}/{id}', function(Application $app, Request $request, $entityType, $id ) {
+$app->get('/v1.0/entities/{entityType}/count', function(Application $app, Request $request, $entityType) {
+    // Log of the path access
+    $app['monolog']->addInfo( "Entities count (".$entityType.")" );
+
+    if ( $error = invalidEntityType( $entityType ) ) { return $app->json( $error ); }
+
+    $sql = "SELECT COUNT(*) AS nb FROM " . $entityType ;
+
+    $res = $app['db']->fetchAll( $sql );
+    return $app->json( (int)$res[0]["nb"] );
+});
+
+
+$app->get('/v1.0/entities/{entityType}/{id}', function(Application $app, Request $request, $entityType, $id ) {
     // Log of the path access
     $app['monolog']->addInfo( "Entity (".$entityType."/".$id.")" );
 
@@ -147,17 +160,6 @@ $app->get('/v1.0/entities/{entityType}', function(Application $app, Request $req
     return $app->json($entity);
 });
 
-$app->get('/v1.0/entities/{entityType}/count', function(Application $app, Request $request, $entityType) {
-    // Log of the path access
-    $app['monolog']->addInfo( "Entities count (".$entityType.")" );
-
-    if ( $error = invalidEntityType( $entityType ) ) { return $app->json( $error ); }
-
-    $sql = "SELECT COUNT(*) AS nb FROM " . $entityType ;
-
-    $res = $app['db']->fetchAll( $sql );
-    return $app->json( (int)$res[0]["nb"] );
-});
 
 $app->get('/v1.0/entityTypes', function(Application $app, Request $request) {
     $app['monolog']->addInfo( "EntityTypes" );
