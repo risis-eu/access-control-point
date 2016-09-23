@@ -42,8 +42,13 @@ $app->before(function ($request) use ($app) {
 
     // Check access
     $token = $request->get('accessToken');
-    if ( ! in_array( $token, $app['parameters']['accessToken'] ) )
-        die( "You don't have access !" );
+
+    if ( ! in_array( $token, $app['parameters']['accessToken'] ) ) {
+        $error["code"]    = 1;
+        $error["message"] = "Access forbidden";
+        $error["fields"]  = "";
+        return $app->json( $error, 401 );
+    }
 
 }, Application::EARLY_EVENT);
 
@@ -66,9 +71,9 @@ function invalidEntityType( $entityType ) {
     global $app;
     if ( ! in_array( $entityType, $app['parameters']['metadata']['entityType'] ) ) {
         // If entity type doesn't exists, return an error
-        $error["code"]=2;
-        $error["message"]="EntityType unavailable";
-        $error["fields"]=$entityType;
+        $error["code"]    = 2;
+        $error["message"] = "EntityType unavailable";
+        $error["fields"]  = $entityType;
         return $error;
     }
     return false;
@@ -79,7 +84,7 @@ $app->get('/v1.0/entities/{entityType}/count', function(Application $app, Reques
     // Log of the path access
     $app['monolog']->addInfo( "Entities count (".$entityType.")" );
 
-    if ( $error = invalidEntityType( $entityType ) ) { return $app->json( $error ); }
+    if ( $error = invalidEntityType( $entityType ) ) { return $app->json( $error, 404 ); }
 
     $sql = "SELECT COUNT(*) AS nb FROM " . $entityType ;
 
@@ -92,7 +97,7 @@ $app->get('/v1.0/entities/{entityType}/{id}', function(Application $app, Request
     // Log of the path access
     $app['monolog']->addInfo( "Entity (".$entityType."/".$id.")" );
 
-    if ( $error = invalidEntityType( $entityType ) ) { return $app->json( $error ); }
+    if ( $error = invalidEntityType( $entityType ) ) { return $app->json( $error, 404 ); }
 
     $entity["dataset"]     = $app['parameters']['metadata']['dataset'];
     $entity["version"]     = $app['parameters']['metadata']['version'];
@@ -119,7 +124,10 @@ $app->get('/v1.0/entities/{entityType}/{id}', function(Application $app, Request
     }
 
     if ( count($entity["instances"]) == 0 ) {
-        $app->abort(404, "No instance for $entityType " . (isset($id)?$id:"") );
+        $error["code"]    = 3;
+        $error["message"] = "No instance found";
+        $error["field"]   = $entityType . (isset($id)?" $id":"");
+        return $app->json( $error, 404 );
     }
 
     return $app->json($entity);
@@ -130,7 +138,7 @@ $app->get('/v1.0/entities/{entityType}', function(Application $app, Request $req
     // Log of the path access
     $app['monolog']->addInfo( "Entities (".$entityType.")" );
 
-    if ( $error = invalidEntityType( $entityType ) ) { return $app->json( $error ); }
+    if ( $error = invalidEntityType( $entityType ) ) { return $app->json( $error, 404 ); }
 
     $entity["dataset"]     = $app['parameters']['metadata']['dataset'];
     $entity["version"]     = $app['parameters']['metadata']['version'];
@@ -162,7 +170,10 @@ $app->get('/v1.0/entities/{entityType}', function(Application $app, Request $req
     }
 
     if ( count($entity["instances"]) == 0 ) {
-        $app->abort(404, "No instance for $entityType " . (isset($id)?$id:"") );
+        $error["code"]    = 3;
+        $error["message"] = "No instance found";
+        $error["field"]   = $entityType . (isset($id)?" $id":"");
+        return $app->json( $error, 404 );
     }
 
     return $app->json($entity);
