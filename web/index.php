@@ -89,7 +89,11 @@ $app->get('/v1.0/entities/{entityType}/count', function(Application $app, Reques
     $sql = "SELECT COUNT(*) AS nb FROM " . $entityType ;
 
     $res = $app['db']->fetchAll( $sql );
-    return $app->json( (int)$res[0]["nb"] );
+
+    $response["total"] = (int)$res[0]["nb"];
+    $response["max_per_page"] = $app['parameters']['db.options']['max_limit'];
+
+    return $app->json( $response );
 });
 
 
