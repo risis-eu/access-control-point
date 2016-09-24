@@ -106,6 +106,8 @@ $app->get('/v1.0/entities/{entityType}/{id}', function(Application $app, Request
     $entity["dataset"]     = $app['parameters']['metadata']['dataset'];
     $entity["version"]     = $app['parameters']['metadata']['version'];
     $entity["entity_type"] = $entityType;
+    $entity["offset"] = 0;
+    $entity["limit"] = 1;
 
     $entity["property_description"] = getPropertiesDescription( $app, $entityType );
 
@@ -148,12 +150,14 @@ $app->get('/v1.0/entities/{entityType}', function(Application $app, Request $req
     $entity["version"]     = $app['parameters']['metadata']['version'];
     $entity["entity_type"] = $entityType;
 
-    $entity["property_description"] = getPropertiesDescription( $app, $entityType );
-
     $offset = (int)$request->get('offset');
     $limit  = (int)$request->get('limit');
     if ( $limit == 0 ) $limit = $app['parameters']['db.options']['default_limit'];
     $limit = min( $limit, $app['parameters']['db.options']['max_limit'] );
+    $entity["offset"] = $offset;
+    $entity["limit"] = $limit;
+
+    $entity["property_description"] = getPropertiesDescription( $app, $entityType );
 
     $sql = "SELECT * FROM " . $entityType . " LIMIT " . $offset . "," . $limit;
 
