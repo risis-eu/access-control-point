@@ -223,17 +223,4 @@ $app->get('/v1.0/metadata', function(Application $app, Request $request) {
     return $app->json( $meta );
 });
 
-$app->get('/v1.0/relations', function(Application $app, Request $request) {
-    return new Response('How about implementing relationsGet as a GET method ?');
-});
-
-$app->get('/v1.0/relations/{relationName}', function(Application $app, Request $request, $relationName) {
-    $offset = $request->get('offset');    $limit = $request->get('limit');
-    return new Response('How about implementing relationsRelationNameGet as a GET method ?');
-});
-
-$app->get('/v1.0/relations/{relationName}/count', function(Application $app, Request $request, $relationName) {
-    return new Response('How about implementing relationsRelationNameCountGet as a GET method ?');
-});
-
 $app->run();
