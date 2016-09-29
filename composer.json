@@ -1,8 +1,8 @@
 {
-    "name": "Nano ACP",
-    "description": "Nano datasets Access Control Point",
+    "name": "ACP Access Control Point",
+    "description": "Datasets Access Control Point",
     "keywords": ["RISIS", "datamining"],
-    "homepage": "http://risis.eu",
+    "homepage": "http://acp.api.risis.eu",
     "authors": [
         {
             "name": "Guillaume Orsal",
