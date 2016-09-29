@@ -9,7 +9,7 @@ use Silex\Application;
 
 $app = new Silex\Application();
 
-// Chargement de la config dans parameters.json
+// Configuration loading from parameters.json
 require_once __DIR__.'/../config/config.php';
 
 // Activation du debugging en fonction du fichier de paramètre
@@ -36,13 +36,16 @@ $app->register(new Silex\Provider\MonologServiceProvider(), array(
     'monolog.name'    => $app['parameters']['monolog']['name']
 ));
 
+// Register Doctrine to access DB
 $app->register(new Silex\Provider\DoctrineServiceProvider());
 
+// Validation of user access via accessToken. This function is called before every route.
 $app->before(function ($request) use ($app) {
 
-    // Check access
+    // Get accessToken from request
     $token = $request->get('accessToken');
 
+    // Is accessToken defined in parameters file ?
     if ( ! in_array( $token, $app['parameters']['accessToken'] ) ) {
         $error["code"]    = 1;
         $error["message"] = "Access forbidden";
@@ -52,7 +55,11 @@ $app->before(function ($request) use ($app) {
 
 }, Application::EARLY_EVENT);
 
-// Branchement de la v1.0, ainsi on pourra faire cohabiter les versions
-$app->mount('/v1.0', include 'acp_v1_0.php');
+// Connection of v1.0, thereby we can hold together multiple versions
+$app->mount( '/v1.0', include 'acp_v1_0.php' );
 
+// Example of a new version. Both can work at the same time.
+// $app->mount( '/v2.0', include 'acp_v2_0.php' );
+
+// Let's rock
 $app->run();
