@@ -5,6 +5,7 @@
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Silex\Application;
+use Silex\Application\UrlGeneratorTrait;
 
 // Initialisation of controller
 $acp = $app['controllers_factory'];
@@ -181,7 +182,15 @@ $acp->get('/entityTypes', function(Application $app, Request $request) {
     foreach( $entitiesList as $oneEntity ) {
         // Creation of one entity type
         $entity['name'] = $oneEntity;
-        $entity['path'] = "http://".$_SERVER['HTTP_HOST']."/v1.0/entities/".$oneEntity;
+
+        if ( isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on" ) {
+            $scheme = "https://";
+        } else if ( $_SERVER['SERVER_PORT'] == 443 ) {
+            $scheme = "https://";
+        } else {
+            $scheme = "http://";
+        }
+        $entity['path'] = $scheme . $_SERVER['HTTP_HOST'] . $app['url_generator']->generate('entities', array( "entityType"=>$oneEntity ) );
 
         // Get information about entity in the db, so it's easy for dataset owner to modify or declare entity types
         $sql = "SELECT description FROM entities WHERE entity=?";

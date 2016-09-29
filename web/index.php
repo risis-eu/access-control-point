@@ -39,6 +39,9 @@ $app->register(new Silex\Provider\MonologServiceProvider(), array(
 // Register Doctrine to access DB
 $app->register(new Silex\Provider\DoctrineServiceProvider());
 
+// Register UrlGenerator to get dynamic routing fonctionnalities
+$app->register(new Silex\Provider\RoutingServiceProvider());
+
 // Validation of user access via accessToken. This function is called before every route.
 $app->before(function ($request) use ($app) {
 
