@@ -38,9 +38,31 @@ function invalidEntityType( Application $app, $entityType ) {
 
 
 /**
- * Return one or all instances of an entities
+ * Get the number of entities for a given entityType
  */
-function getEntities( Application $app, Request $request, $entityType, $id = null ) {
+$acp->get('/entities/{entityType}/count', function(Application $app, Request $request, $entityType) {
+    // Log of the path access
+    $app['monolog']->addInfo( "Entities count (".$entityType.")" );
+
+    // Validation of entityType
+    if ( $error = invalidEntityType( $app, $entityType ) ) { return $app->json( $error, 404 ); }
+
+    $sql = "SELECT COUNT(*) AS nb FROM " . $entityType ;
+
+    $res = $app['db']->fetchAll( $sql );
+
+    $response["total"] = (int)$res[0]["nb"];
+    $response["max_per_page"] = $app['parameters']['db.options']['max_limit'];
+
+    return $app->json( $response );
+});
+
+
+/**
+ * Retrieve one or all instances of a given entityType
+ * id is a string that corresponds to the primary key of the entityType
+ */
+$acp->get('/entities/{entityType}/{id}', function(Application $app, Request $request, $entityType, $id ) {
     // Log of the path access
     $app['monolog']->addInfo( "Entity (".$entityType. (isset($id)?"/$id":"") .")" );
 
@@ -93,44 +115,7 @@ function getEntities( Application $app, Request $request, $entityType, $id = nul
     }
 
     return $app->json($entity);
-}
-
-/**
- * Get the number of entities for a given entityType
- */
-$acp->get('/entities/{entityType}/count', function(Application $app, Request $request, $entityType) {
-    // Log of the path access
-    $app['monolog']->addInfo( "Entities count (".$entityType.")" );
-
-    // Validation of entityType
-    if ( $error = invalidEntityType( $app, $entityType ) ) { return $app->json( $error, 404 ); }
-
-    $sql = "SELECT COUNT(*) AS nb FROM " . $entityType ;
-
-    $res = $app['db']->fetchAll( $sql );
-
-    $response["total"] = (int)$res[0]["nb"];
-    $response["max_per_page"] = $app['parameters']['db.options']['max_limit'];
-
-    return $app->json( $response );
-});
-
-
-/**
- * Retrieve a specific id of a given entityType
- * id is a string that corresponds to the primary key of the entityType
- */
-$acp->get('/entities/{entityType}/{id}', function(Application $app, Request $request, $entityType, $id ) {
-    return getEntities( $app, $request, $entityType, $id );
-});
-
-
-/**
- * Get all entities of a given entityType, in the limit of the max number of entities in one time as defined in config
- */
-$acp->get('/entities/{entityType}', function(Application $app, Request $request, $entityType ) {
-    return getEntities( $app, $request, $entityType );
-})->bind('entities');
+})->bind('entities')->value('id',null);
 
 
 /**
@@ -168,7 +153,8 @@ $acp->get('/entityTypes', function(Application $app, Request $request) {
 
     // Return of entity types list in json format
     return $app->json( $response );
-});
+})->bind('entityTypes');
+
 
 /**
  * Get metadata info about the dataset
@@ -186,6 +172,7 @@ $acp->get('/metadata', function(Application $app, Request $request) {
     $meta["contact_email"]        = $app['parameters']['metadata']['contact_email'];
 
     return $app->json( $meta );
-});
+})->bind('metadata');
+
 
 return $acp;
