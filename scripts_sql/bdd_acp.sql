@@ -1,4 +1,4 @@
-CREATE TABLE `dictionnary` (
+CREATE TABLE IF NOT EXISTS `dictionnary` (
   `entityType` varchar(100) CHARACTER SET utf8 NOT NULL,
   `name` varchar(100) CHARACTER SET utf8 NOT NULL,
   `description` text CHARACTER SET utf8 NOT NULL,
@@ -6,7 +6,7 @@ CREATE TABLE `dictionnary` (
   PRIMARY KEY (`entityType`,`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-CREATE TABLE `entities` (
+CREATE TABLE IF NOT EXISTS `entities` (
  `entity` varchar(100) CHARACTER SET utf8 NOT NULL,
  `description` text CHARACTER SET utf8 NOT NULL,
  PRIMARY KEY (`entity`)
