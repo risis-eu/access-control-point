@@ -38,33 +38,11 @@ function invalidEntityType( Application $app, $entityType ) {
 
 
 /**
- * Get the number of entities for a given entityType
+ * Return one or all instances of an entities
  */
-$acp->get('/entities/{entityType}/count', function(Application $app, Request $request, $entityType) {
+function getEntities( Application $app, Request $request, $entityType, $id = null ) {
     // Log of the path access
-    $app['monolog']->addInfo( "Entities count (".$entityType.")" );
-
-    // Validation of entityType
-    if ( $error = invalidEntityType( $app, $entityType ) ) { return $app->json( $error, 404 ); }
-
-    $sql = "SELECT COUNT(*) AS nb FROM " . $entityType ;
-
-    $res = $app['db']->fetchAll( $sql );
-
-    $response["total"] = (int)$res[0]["nb"];
-    $response["max_per_page"] = $app['parameters']['db.options']['max_limit'];
-
-    return $app->json( $response );
-});
-
-
-/**
- * Retrieve a specific id of a given entityType
- * id is a string that corresponds to the primary key of the entityType
- */
-$acp->get('/entities/{entityType}/{id}', function(Application $app, Request $request, $entityType, $id ) {
-    // Log of the path access
-    $app['monolog']->addInfo( "Entity (".$entityType."/".$id.")" );
+    $app['monolog']->addInfo( "Entity (".$entityType. (isset($id)?"/$id":"") .")" );
 
     // Validation of entityType
     if ( $error = invalidEntityType( $app, $entityType ) ) { return $app->json( $error, 404 ); }
@@ -73,16 +51,23 @@ $acp->get('/entities/{entityType}/{id}', function(Application $app, Request $req
     $entity["dataset"]     = $app['parameters']['metadata']['dataset'];
     $entity["version"]     = $app['parameters']['metadata']['version'];
     $entity["entity_type"] = $entityType;
-    $entity["offset"] = 0; // In case of a specific id, this field is forced
-    $entity["limit"] = 1; // In case of a specific id, this field is forced
+
+    // Validation of parameters
+    $offset = (int)$request->get('offset');
+    $limit  = (int)$request->get('limit');
+    if ( $limit == 0 ) $limit = $app['parameters']['db.options']['default_limit'];
+    $limit = min( $limit, $app['parameters']['db.options']['max_limit'] );
+    $entity["offset"] = $offset;
+    $entity["limit"] = $limit;
 
     // Get dictionnary of properties
     $entity["property_description"] = getPropertiesDescription( $app, $entityType );
 
     // Each entity table (or view) must have an id field, that is a primary key
-    $sql = "SELECT * FROM " . $entityType . " WHERE id=?";
-
-    $results = $app['db']->fetchAll($sql, array( $id ) );
+    $sql = "SELECT * FROM ".$entityType.(isset($id)?" WHERE id=?":"")." LIMIT ".$offset.",".$limit;
+    $query_params = array();
+    if ( isset( $id ) ) $query_params[] = $id;
+    $results = $app['db']->fetchAll($sql, $query_params );
 
     // Preparing the results
     foreach( $results as $res ) {
@@ -108,63 +93,43 @@ $acp->get('/entities/{entityType}/{id}', function(Application $app, Request $req
     }
 
     return $app->json($entity);
+}
 
+/**
+ * Get the number of entities for a given entityType
+ */
+$acp->get('/entities/{entityType}/count', function(Application $app, Request $request, $entityType) {
+    // Log of the path access
+    $app['monolog']->addInfo( "Entities count (".$entityType.")" );
+
+    // Validation of entityType
+    if ( $error = invalidEntityType( $app, $entityType ) ) { return $app->json( $error, 404 ); }
+
+    $sql = "SELECT COUNT(*) AS nb FROM " . $entityType ;
+
+    $res = $app['db']->fetchAll( $sql );
+
+    $response["total"] = (int)$res[0]["nb"];
+    $response["max_per_page"] = $app['parameters']['db.options']['max_limit'];
+
+    return $app->json( $response );
 });
+
+
+/**
+ * Retrieve a specific id of a given entityType
+ * id is a string that corresponds to the primary key of the entityType
+ */
+$acp->get('/entities/{entityType}/{id}', function(Application $app, Request $request, $entityType, $id ) {
+    return getEntities( $app, $request, $entityType, $id );
+});
+
 
 /**
  * Get all entities of a given entityType, in the limit of the max number of entities in one time as defined in config
  */
 $acp->get('/entities/{entityType}', function(Application $app, Request $request, $entityType ) {
-    // Log of the path access
-    $app['monolog']->addInfo( "Entities (".$entityType.")" );
-
-    // Validation of entityType
-    if ( $error = invalidEntityType( $app, $entityType ) ) { return $app->json( $error, 404 ); }
-
-    // Some metadata
-    $entity["dataset"]     = $app['parameters']['metadata']['dataset'];
-    $entity["version"]     = $app['parameters']['metadata']['version'];
-    $entity["entity_type"] = $entityType;
-
-    // Validation of parameters
-    $offset = (int)$request->get('offset');
-    $limit  = (int)$request->get('limit');
-    if ( $limit == 0 ) $limit = $app['parameters']['db.options']['default_limit'];
-    $limit = min( $limit, $app['parameters']['db.options']['max_limit'] );
-    $entity["offset"] = $offset;
-    $entity["limit"] = $limit;
-
-    // Get the dictionnary
-    $entity["property_description"] = getPropertiesDescription( $app, $entityType );
-
-    $sql = "SELECT * FROM " . $entityType . " LIMIT " . $offset . "," . $limit;
-
-    $results = $app['db']->fetchAll( $sql );
-
-    // Preparation des resultats
-    foreach( $results as $res ) {
-        foreach( $res as $property => $value ) {
-            if ( $property === "id" ) {
-                $instance["id"] = $value;
-            } else {
-                $prop["property"] = $property;
-                $prop["value"]    = $value;
-                $instance["property_values"][] = $prop;
-            }
-        }
-        $entity["instances"][] = $instance;
-        unset( $instance );
-    }
-
-    // No instance found ? then error.
-    if ( count($entity["instances"]) == 0 ) {
-        $error["code"]    = 3;
-        $error["message"] = "No instance found";
-        $error["field"]   = $entityType . (isset($id)?" $id":"");
-        return $app->json( $error, 404 );
-    }
-
-    return $app->json($entity);
+    return getEntities( $app, $request, $entityType );
 })->bind('entities');
 
 
