@@ -48,7 +48,7 @@ There is two tables needed for metadata :
  * entity : the entity type as defined in the parameters file
  * description : the description of the entity
 
-For each entity type, their must be a table (or a view) from which the name is the exact entity name. Each table must contains a primary field named id.
+For each entity type, there must be a table (or a view) from which the name is the exact entity name. Each table must contain a primary field named id.
 
 * `<entitiy name>` table
  * id : the primary key
