@@ -2,12 +2,14 @@
 
 This project is an implementation in Silex/PHP of the ACP API defined in the RISIS Project.
 
+
 ## Prerequisites
 
 * Git : https://git-scm.com/
 * Composer : https://getcomposer.org/
 * A Web server, like Apache : https://httpd.apache.org/
 * MySQL : http://www-fr.mysql.com/
+
 
 ## Installation
 
@@ -17,7 +19,8 @@ This project is an implementation in Silex/PHP of the ACP API defined in the RIS
 composer update
 4. Create configuration file parameters.json from parameters.json.dist in config directory
 5. Execute bdd_acp.sql sql script on the database of the project
-6. Populate your DB with data
+6. Populate your DB with data. To make experiments, a sample of dummy data is available in the directory scripts_sql. Play the acp_dummy_data.sql script on your database to add his content. The entityType parameter of your configuration file must contain `"Institution","Papier","Pays"`
+
 
 ## Configuration
 
