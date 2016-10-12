@@ -1,5 +1,5 @@
 <?php
-/* Access Control Point to Nano */
+/* Access Control Point */
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -60,6 +60,7 @@ $app->before(function ($request) use ($app) {
 
 // Connection of v1.0, thereby we can hold together multiple versions
 $app->mount( '/v1.0', include 'acp_v1_0.php' );
+$app->mount( '/v1.1', include 'acp_v1_1.php' );
 
 // Example of a new version. Both can work at the same time.
 // $app->mount( '/v2.0', include 'acp_v2_0.php' );

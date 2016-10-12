@@ -1,6 +1,6 @@
 <?php
 /* Access Control Point */
-/* V1.0 of the ACP API */
+/* V1.1 of the ACP API */
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,27 +11,6 @@ use Silex\Application\UrlGeneratorTrait;
 $acp = $app['controllers_factory'];
 
 require_once 'acp_functions.php';
-
-/**
- * Get the number of entities for a given entityType
- */
-$acp->get('/entities/{entityType}/count', function(Application $app, Request $request, $entityType) {
-    // Log of the path access
-    $app['monolog']->addInfo( "Entities count (".$entityType.")" );
-
-    // Validation of entityType
-    if ( $error = invalidEntityType( $app, $entityType ) ) { return $app->json( $error, 404 ); }
-
-    $sql = "SELECT COUNT(*) AS nb FROM " . $entityType ;
-
-    $res = $app['db']->fetchAll( $sql );
-
-    $response["total"] = (int)$res[0]["nb"];
-    $response["max_per_page"] = $app['parameters']['db.options']['max_limit'];
-
-    return $app->json( $response );
-});
-
 
 /**
  * Retrieve one or all instances of a given entityType
@@ -91,7 +70,7 @@ $acp->get('/entities/{entityType}/{id}', function(Application $app, Request $req
     }
 
     return $app->json($entity);
-})->bind('entities_v1_0')->value('id',null);
+})->bind('entities_v1_1')->value('id',null);
 
 
 /**
@@ -116,13 +95,21 @@ $acp->get('/entityTypes', function(Application $app, Request $request) {
         } else {
             $scheme = "http://";
         }
-        $entity['path'] = $scheme . $_SERVER['HTTP_HOST'] . $app['url_generator']->generate('entities_v1_0', array( "entityType"=>$oneEntity ) );
+        $entity['path'] = $scheme . $_SERVER['HTTP_HOST'] . $app['url_generator']->generate('entities_v1_1', array( "entityType"=>$oneEntity ) );
 
         // Get information about entity in the db, so it's easy for dataset owner to modify or declare entity types
         $sql = "SELECT description FROM entities WHERE entity=?";
         $result = $app['db']->fetchAll( $sql, array( $oneEntity ) );
 
         $entity['description'] = $result[0]['description'];
+
+        $sql = "SELECT COUNT(*) AS nb FROM " . $oneEntity ;
+
+        $res = $app['db']->fetchAll( $sql );
+
+        $entity["total"] = (int)$res[0]["nb"];
+        $entity["max_per_page"] = $app['parameters']['db.options']['max_limit'];
+
         // Addition of the entity type to the response
         $response[] = $entity;
     }
