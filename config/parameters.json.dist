@@ -18,7 +18,6 @@
     "metadata": {
         "dataset" : "acp",
         "version" : "version_YYYY_MM",
-        "entityType" : [ "Entity1", "Entity2" ],
         "description" : "Description of the dataset",
         "creationDate" : "YYYY-MM-DD HH:MM:SS",
         "contact_person" : "Name of the owner",

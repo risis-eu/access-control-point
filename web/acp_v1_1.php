@@ -81,7 +81,7 @@ $acp->get('/entityTypes', function(Application $app, Request $request) {
     $app['monolog']->addInfo( "EntityTypes" );
 
     // Get the available entity types
-    $entitiesList = $app['parameters']['metadata']['entityType'];
+    $entitiesList = getAvailableEntities( $app );
 
     // Construction of information for each entity type
     foreach( $entitiesList as $oneEntity ) {

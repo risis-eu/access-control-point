@@ -28,10 +28,10 @@ INSERT INTO `dictionnary` (`entityType`, `name`, `description`, `hasEntityType`)
 -- Contenu de la table `entities`
 --
 
-INSERT INTO `entities` (`entity`, `description`) VALUES
-('Pays', 'Information about the countries of applicants (ISO country code, continent…)'),
-('Papier', 'Information about the Nano patents extracted from EPO Patstat version September 2014, and as described in Kahane, B., Mogoutov, A., Cointet, J. P., Villard, L. & Laredo, P., 2015. A dynamic query to delineate emergent science and technology: the case of nano science and technology. Content and technical structure of the Nano S&T Dynamics Infrastructure, RISIS, 47-70.'),
-('Institution', 'Information regarding institutions (standardized name, type…).');
+INSERT INTO `entities` (`entity`, `description`, `active`) VALUES
+('Pays', 'Information about the countries of applicants (ISO country code, continent…)', 1),
+('Papier', 'Information about the Nano patents extracted from EPO Patstat version September 2014, and as described in Kahane, B., Mogoutov, A., Cointet, J. P., Villard, L. & Laredo, P., 2015. A dynamic query to delineate emergent science and technology: the case of nano science and technology. Content and technical structure of the Nano S&T Dynamics Infrastructure, RISIS, 47-70.',1),
+('Institution', 'Information regarding institutions (standardized name, type…).',1);
 
 -- --------------------------------------------------------
 
