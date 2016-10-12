@@ -123,6 +123,7 @@ Get all instances of an entity (in the limit of max_limit records) :
 ## Release History
 
 v1.0 - 2016/10/01 First version
+
 v1.1 - 2016/10/12 v1.1 of API
 
 
