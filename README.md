@@ -96,28 +96,25 @@ The API is defined with a swagger yaml file here : <https://github.com/risis-eu/
 
 Get metadata about the dataset :
 
-`http://my-acp.com/v1.0/metadata?accessToken=<AvailableToken>&offset=<2>&limit=<3>`
+`http://my-acp.com/v1.1/metadata?accessToken=<AvailableToken>&offset=<2>&limit=<3>`
 
 Get the list of available entity types :
 
-`http://my-acp.com/v1.0/entityTypes?accessToken=<AvailableToken>`
-
-Get the number of available instances of one entity :
-
-`http://my-acp.com/v1.0/entities/<Entityname>/count?accessToken=<AvailableToken>`
+`http://my-acp.com/v1.1/entityTypes?accessToken=<AvailableToken>`
 
 Get a specific instance of an entity :
 
-`http://my-acp.com/v1.0/entities/<Entityname>/<ID>?accessToken=<AvailableToken>`
+`http://my-acp.com/v1.1/entities/<Entityname>/<ID>?accessToken=<AvailableToken>`
 
 Get all instances of an entity (in the limit of max_limit records) :
 
-`http://my-acp.com/v1.0/entities/<Entityname>?accessToken=<AvailableToken>&offset=<0>&limit=<3>`
+`http://my-acp.com/v1.1/entities/<Entityname>?accessToken=<AvailableToken>&offset=<0>&limit=<3>`
 
 
 ## Release History
 
 v1.0 - 2016/10/01 First version
+v1.1 - 2016/10/12 v1.1 of API
 
 
 ## Contributors
