@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS `dictionnary` (
 CREATE TABLE IF NOT EXISTS `entities` (
  `entity` varchar(100) CHARACTER SET utf8 NOT NULL,
  `description` text CHARACTER SET utf8 NOT NULL,
- `active` tinyint(1) NOT NULL DEFAULT '1'
+ `active` tinyint(1) NOT NULL DEFAULT '1',
  PRIMARY KEY (`entity`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
