@@ -51,11 +51,10 @@ $acp->get('/entities/{entityType}/{id}', function(Application $app, Request $req
         foreach( $res as $property => $value ) {
             if ( $property === "id" ) {
                 $instance["id"] = $value;
-            } else {
-                $prop["property"] = $property;
-                $prop["value"]    = $value;
-                $instance["property_values"][] = $prop;
             }
+            $prop["property"] = $property;
+            $prop["value"]    = $value;
+            $instance["property_values"][] = $prop;
         }
         $entity["instances"][] = $instance;
         unset( $instance );

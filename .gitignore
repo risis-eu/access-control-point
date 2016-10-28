@@ -1,3 +1,4 @@
 vendor
 config/parameters.json
 composer.lock
+logs/*
